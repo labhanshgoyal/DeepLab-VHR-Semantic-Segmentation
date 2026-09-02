@@ -1,0 +1,40 @@
+model:
+  name: deeplabv3plus
+  backbone: resnet101
+  num_classes: 10
+  output_stride: 16
+  pretrained: true
+
+training:
+  epochs: 100
+  batch_size: 8
+  learning_rate: 0.007
+  weight_decay: 0.0005
+  momentum: 0.9
+  optimizer: sgd
+  scheduler: poly
+  scheduler_power: 0.9
+  early_stopping_patience: 10
+  use_amp: true
+
+loss:
+  type: bce_dice
+  bce_weight: 0.5
+
+data:
+  dataset_dir: "NWPU VHR-10_dataset_coco"
+  images_dir: "positive image set"
+  train_annotations: "instances_train2017.json"
+  val_annotations: "instances_val2017.json"
+  image_size: 512
+  num_workers: 4
+
+logging:
+  tensorboard: true
+  log_dir: "runs/"
+  save_interval: 5
+
+checkpoint:
+  save_dir: "checkpoints/"
+  save_best: true
+  save_last: true

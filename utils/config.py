@@ -1,14 +1,14 @@
 import yaml
 import argparse
 
-def load_config(path="config/default.yaml"):
+def load_config(path="configs/default.yaml"):
     with open(path, "r") as f:
         config=yaml.safe_load(f)
     return config
 
 def get_args():
     parser=argparse.ArgumentParser(description="DeepLab Training Pipeline")
-    parser.add_argument("--config", type=str, default="config/default.yaml",help="Path to YAML config file")
+    parser.add_argument("--config", type=str, default="configs/default.yaml", help="Path to YAML config file")
     parser.add_argument("--model", type=str, help="model name")
     parser.add_argument("--epochs", type=int, help="number of training epochs")
     parser.add_argument("--batch-size", type=int, help="batch size")

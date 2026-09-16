@@ -6,15 +6,15 @@ model:
   pretrained: true
 
 training:
-  epochs: 100
-  batch_size: 8
+  epochs: 50
+  batch_size: 4
   learning_rate: 0.007
   weight_decay: 0.0005
   momentum: 0.9
   optimizer: sgd
   scheduler: poly
   scheduler_power: 0.9
-  early_stopping_patience: 10
+  early_stopping_patience: 25
   use_amp: true
 
 loss:
@@ -23,7 +23,7 @@ loss:
 
 data:
   dataset_dir: "NWPU VHR-10_dataset_coco"
-  images_dir: "positive image set"
+  images_dir: "NWPU VHR-10 dataset/positive image set"
   train_annotations: "instances_train2017.json"
   val_annotations: "instances_val2017.json"
   image_size: 512

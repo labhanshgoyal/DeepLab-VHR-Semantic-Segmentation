@@ -63,9 +63,7 @@ class JointColorJitter:
 class JointToTensor:
     def __call__(self, image, mask):
         image = transforms.functional.to_tensor(image)
-        mask = torch.from_numpy(np.array(mask)).float()
-        if mask.dim() == 3:
-            mask = mask.permute(2, 0, 1)
+        # mask stays as PIL — dataset.py converts it to multi-channel tensor
         return image, mask
 
 class JointNormalize:

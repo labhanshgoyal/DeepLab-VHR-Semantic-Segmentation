@@ -1,4 +1,5 @@
 import os
+import torch
 import numpy as np
 from PIL import Image
 from pycocotools.coco import COCO
@@ -21,7 +22,7 @@ class CocoSegDataset(Dataset):
         img_path = os.path.join(self.root_dir, img_info["file_name"])
         image = Image.open(img_path).convert("RGB")
         ann_ids = self.coco.getAnnIds(imgIds=img_id)
-        anns =  self.coco.loadAnns(ann_ids)
+        anns = self.coco.loadAnns(ann_ids)
         w, h = image.size
         mask = np.zeros((h, w, self.num_classes), dtype=np.float32)
 
@@ -29,19 +30,39 @@ class CocoSegDataset(Dataset):
             cat_id = ann["category_id"] - 1
             binary_mask = self.coco.annToMask(ann)
             mask[:, :, cat_id] = np.maximum(mask[:, :, cat_id], binary_mask)
-        
-        mask = Image.fromarray(mask.astype(np.uint8))
+
+        # convert mask to single-channel index image for PIL compatibility
+        # background = 0, class 1 = 1, class 2 = 2, etc.
+        # where multiple classes overlap, take the last one
+        mask_index = np.zeros((h, w), dtype=np.uint8)
+        for c in range(self.num_classes):
+            mask_index[mask[:, :, c] > 0] = c + 1
+        mask_pil = Image.fromarray(mask_index)
 
         if self.transform:
-            image, mask = self.transform(image, mask)
+            image, mask_pil = self.transform(image, mask_pil)
 
-        return image, mask
+        # convert single-channel index mask back to multi-channel binary [C, H, W]
+        if isinstance(mask_pil, Image.Image):
+            mask_np = np.array(mask_pil)
+        elif isinstance(mask_pil, torch.Tensor):
+            mask_np = mask_pil.squeeze(0).numpy() if mask_pil.dim() == 3 else mask_pil.numpy()
+        else:
+            mask_np = mask_pil
+        if mask_np.ndim == 3:
+            mask_np = mask_np[:, :, 0]
+
+        multi_mask = np.zeros((self.num_classes, mask_np.shape[0], mask_np.shape[1]), dtype=np.float32)
+        for c in range(self.num_classes):
+            multi_mask[c] = (mask_np == (c + 1)).astype(np.float32)
+
+        return image, torch.from_numpy(multi_mask)
 
 def get_dataloaders(config):
     data_cfg = config["data"]
     from utils.transforms import get_train_transforms, get_val_transforms
     dataset_dir = data_cfg["dataset_dir"]
-    images_dir = os.path.join(dataset_dir, data_cfg["images_dir"])
+    images_dir = data_cfg["images_dir"]
     train_dataset = CocoSegDataset(
         root_dir=images_dir,
         annotation_file=os.path.join(dataset_dir, data_cfg["train_annotations"]),

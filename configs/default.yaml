@@ -6,15 +6,15 @@ model:
   pretrained: true
 
 training:
-  epochs: 50
+  epochs: 200
   batch_size: 4
-  learning_rate: 0.007
-  weight_decay: 0.0005
+  learning_rate: 0.001
+  weight_decay: 0.0001
   momentum: 0.9
-  optimizer: sgd
-  scheduler: poly
+  optimizer: adam
+  scheduler: cosine
   scheduler_power: 0.9
-  early_stopping_patience: 25
+  early_stopping_patience: 40
   use_amp: true
 
 loss:

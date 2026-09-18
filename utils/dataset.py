@@ -5,6 +5,7 @@ from PIL import Image
 from pycocotools.coco import COCO
 from torch.utils.data import Dataset, DataLoader
 
+
 class CocoSegDataset(Dataset):
     def __init__(self, root_dir, annotation_file, num_classes=10, transform=None):
         self.root_dir = root_dir
@@ -15,7 +16,7 @@ class CocoSegDataset(Dataset):
 
     def __len__(self):
         return len(self.image_ids)
-    
+
     def __getitem__(self, idx):
         img_id = self.image_ids[idx]
         img_info = self.coco.loadImgs(img_id)[0]
@@ -24,39 +25,23 @@ class CocoSegDataset(Dataset):
         ann_ids = self.coco.getAnnIds(imgIds=img_id)
         anns = self.coco.loadAnns(ann_ids)
         w, h = image.size
-        mask = np.zeros((h, w, self.num_classes), dtype=np.float32)
 
+        # create multi-channel binary mask [H, W, C]
+        # each channel is a binary mask for one class
+        # this preserves overlapping objects (unlike index masks)
+        mask = np.zeros((h, w, self.num_classes), dtype=np.float32)
         for ann in anns:
-            cat_id = ann["category_id"] - 1
+            cat_id = ann["category_id"] - 1  # 1-indexed → 0-indexed
             binary_mask = self.coco.annToMask(ann)
             mask[:, :, cat_id] = np.maximum(mask[:, :, cat_id], binary_mask)
 
-        # convert mask to single-channel index image for PIL compatibility
-        # background = 0, class 1 = 1, class 2 = 2, etc.
-        # where multiple classes overlap, take the last one
-        mask_index = np.zeros((h, w), dtype=np.uint8)
-        for c in range(self.num_classes):
-            mask_index[mask[:, :, c] > 0] = c + 1
-        mask_pil = Image.fromarray(mask_index)
-
+        # transform: image is PIL, mask is numpy [H, W, C]
+        # transforms return: image as tensor [3, H, W], mask as tensor [C, H, W]
         if self.transform:
-            image, mask_pil = self.transform(image, mask_pil)
+            image, mask = self.transform(image, mask)
 
-        # convert single-channel index mask back to multi-channel binary [C, H, W]
-        if isinstance(mask_pil, Image.Image):
-            mask_np = np.array(mask_pil)
-        elif isinstance(mask_pil, torch.Tensor):
-            mask_np = mask_pil.squeeze(0).numpy() if mask_pil.dim() == 3 else mask_pil.numpy()
-        else:
-            mask_np = mask_pil
-        if mask_np.ndim == 3:
-            mask_np = mask_np[:, :, 0]
+        return image, mask
 
-        multi_mask = np.zeros((self.num_classes, mask_np.shape[0], mask_np.shape[1]), dtype=np.float32)
-        for c in range(self.num_classes):
-            multi_mask[c] = (mask_np == (c + 1)).astype(np.float32)
-
-        return image, torch.from_numpy(multi_mask)
 
 def get_dataloaders(config):
     data_cfg = config["data"]

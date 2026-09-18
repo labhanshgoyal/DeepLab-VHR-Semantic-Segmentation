@@ -104,9 +104,12 @@ venv.bak/
 
 results.csv
 
-# Model checkpoints (too large for GitHub)
+# ====== Project-Specific ======
+
+# Model checkpoints (too large for GitHub, download separately)
 checkpoints/
 *.pth
+*.onnx
 
 # TensorBoard logs
 runs/
@@ -114,11 +117,13 @@ runs/
 # Evaluation outputs
 results/
 
-# Dataset images (download separately)
+# Dataset (download separately — see README)
 data/
+NWPU VHR-10 dataset/
+NWPU VHR-10_dataset_coco/
 positive\ image\ set/
 
 # IDE
 .vscode/
 .idea/
-NWPU VHR-10 dataset/
+*.code-workspace

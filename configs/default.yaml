@@ -16,7 +16,7 @@ training:
   scheduler_power: 0.9
   early_stopping_patience: 40
   use_amp: true
-
+f
 loss:
   type: bce_dice
   bce_weight: 0.5

@@ -8,18 +8,19 @@ model:
 training:
   epochs: 200
   batch_size: 4
-  learning_rate: 0.001
-  weight_decay: 0.0001
+  learning_rate: 0.007
+  weight_decay: 0.0005
   momentum: 0.9
-  optimizer: adam
-  scheduler: cosine
+  optimizer: sgd
+  scheduler: poly
   scheduler_power: 0.9
   early_stopping_patience: 40
   use_amp: true
 
 loss:
-  type: bce_dice
-  bce_weight: 0.5
+  type: focal
+  focal_alpha: 0.25
+  focal_gamma: 2.0
 
 data:
   dataset_dir: "NWPU VHR-10_dataset_coco"

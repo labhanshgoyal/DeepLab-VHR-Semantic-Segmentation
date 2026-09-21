@@ -60,6 +60,8 @@ def train_one_epoch(model, loader, optimizer, scaler, config, device):
                 outputs, masks, metrics,
                 loss_type=config["loss"]["type"],
                 bce_weight=config["loss"].get("bce_weight", 0.5),
+                focal_alpha=config["loss"].get("focal_alpha", 0.25),
+                focal_gamma=config["loss"].get("focal_gamma", 2.0),
             )
         # Backward pass — compute gradients
         optimizer.zero_grad()  # clear old gradients (they accumulate by default)
@@ -94,7 +96,9 @@ def validate(model, loader, config, device):
             outputs = model(images)
             calc_loss(outputs, masks, metrics,
                       loss_type=config["loss"]["type"],
-                      bce_weight=config["loss"].get("bce_weight", 0.5))
+                      bce_weight=config["loss"].get("bce_weight", 0.5),
+                      focal_alpha=config["loss"].get("focal_alpha", 0.25),
+                      focal_gamma=config["loss"].get("focal_gamma", 2.0))
             mIoU(outputs, masks, metrics, IOUs, NUM_IMGS, device)
     n = len(loader.dataset)
     epoch_metrics = {k: v / n for k, v in metrics.items()}

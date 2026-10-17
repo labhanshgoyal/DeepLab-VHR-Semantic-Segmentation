@@ -121,8 +121,9 @@ def evaluate(config):
 
             # build confusion matrix
             N, C, H, W = masks.shape
-            bg = torch.zeros((N, 1, H, W)).to(device)
-            pred_cls = torch.cat((bg, outputs), dim=1).argmax(1)
+            bg = torch.full((N, 1, H, W), 0.5, device=device)
+            pred_probs = torch.sigmoid(outputs)
+            pred_cls = torch.cat((bg, pred_probs), dim=1).argmax(1)
             true_cls = torch.cat((bg, masks), dim=1).argmax(1)
             confusion += compute_confusion_matrix(pred_cls.cpu(), true_cls.cpu(), num_classes + 1)
 

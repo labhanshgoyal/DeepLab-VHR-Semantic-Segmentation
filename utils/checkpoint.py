@@ -23,7 +23,7 @@ def save_checkpoint(model, optimizer, scheduler, scaler, epoch, best_miou, confi
     print(f"Checkpoint saved to {save_path}")
 
 def load_checkpoint(path, model, optimizer=None, scheduler=None, scaler=None):
-    checkpoint = torch.load(path, map_location="cpu", weight_only=False)
+    checkpoint = torch.load(path, map_location="cpu", weights_only=False)
     model.load_state_dict(checkpoint["model_state_dict"])
 
     if optimizer and "optimizer_state_dict" in checkpoint:

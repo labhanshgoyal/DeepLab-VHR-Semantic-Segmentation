@@ -1,0 +1,18 @@
+{
+  "model": "deeplabv3plus",
+  "mIoU": 0.4945186990957994,
+  "loss": 0.16685081193080314,
+  "per_class_iou": {
+    "Airplane": 0.4277909831567244,
+    "Ship": 0.0,
+    "Storage Tank": 0.0,
+    "Baseball Diamond": 0.7687121371428172,
+    "Tennis Court": 0.5850364889787592,
+    "Basketball Court": 0.5111310883210256,
+    "Ground Track Field": 0.9059496830249655,
+    "Harbor": 0.6402181625366211,
+    "Bridge": 0.0,
+    "Vehicle": 0.524234381161238
+  },
+  "num_images": 130
+}

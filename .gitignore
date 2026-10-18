@@ -114,9 +114,6 @@ checkpoints/
 # TensorBoard logs
 runs/
 
-# Evaluation outputs
-results/
-
 # Dataset (download separately — see README)
 data/
 NWPU VHR-10 dataset/
